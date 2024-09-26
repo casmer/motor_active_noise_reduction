@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+print ("Starting Noise Reducer...")
+
 import sounddevice as sd
 import numpy as np
 
@@ -20,7 +22,7 @@ class NoiseReducer(object):
         self.fs = 44100
         # Filter requirements.
         self.order = 6
-
+        
         self.cutoff = 1000
         
     def butter_lowpass(self, cutoff, fs, order=5):
@@ -33,12 +35,15 @@ class NoiseReducer(object):
 
     def callback(self, indata, outdata, frames, time, status):
             
-       
+        # if (self.first_pass):
+        #     print("Started streaming")
+        #     self.first_pass = False
         outdata[:] = -self.butter_lowpass_filter(indata, self.cutoff, self.fs, self.order)
 
 
 nr = NoiseReducer()
 
+print ("Starting Stream...")
 try:
     with sd.Stream(device=(1,1), samplerate=fs, dtype='float32', latency=None, channels=2, callback=nr.callback):
         input()
